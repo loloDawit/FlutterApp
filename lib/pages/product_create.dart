@@ -12,9 +12,9 @@ class ProductCreatePage extends StatefulWidget {
 }
 
 class _ProductCreatePageState extends State<ProductCreatePage> {
-  String titleValue = '';
-  String description = '';
-  double priceValue = 0.0;
+  String _titleValue = '';
+  String _description = '';
+  double _priceValue = 0.0;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -27,7 +27,7 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
             ),
             onChanged: (String value) {
               setState(() {
-                titleValue = value;
+                _titleValue = value;
               });
             },
           ),
@@ -36,7 +36,7 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
               maxLines: 4,
               onChanged: (String value) {
                 setState(() {
-                  description = value;
+                  _description = value;
                 });
               }),
           TextField(
@@ -44,19 +44,23 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
               keyboardType: TextInputType.number,
               onChanged: (String value) {
                 setState(() {
-                  priceValue = double.parse(value);
+                  _priceValue = double.parse(value);
                 });
               }),
+          SizedBox(height: 10.0),
           RaisedButton(
             child: Text('Save'),
+            color: Theme.of(context).accentColor,
+            textColor: Colors.white,
             onPressed: () {
               final Map<String, dynamic> product = {
-                'title': titleValue,
-                'description': description,
-                'price': priceValue,
+                'title': _titleValue,
+                'description': _description,
+                'price': _priceValue,
                 'image': 'assets/food.jpg'
               };
               widget.addProduct(product);
+              Navigator.pushNamed(context, '/home');
             },
           )
         ],

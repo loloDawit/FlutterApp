@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import './pages/product.dart';
 import './pages/product_admin.dart';
 import './pages/home.dart';
+import './pages/auth.dart';
 
 void main() => runApp(MyApp());
 
@@ -37,7 +38,8 @@ class _MyAppState extends State<MyApp> {
           accentColor: Colors.deepPurple),
       title: 'Welcome to Flutter',
       routes: {
-        '/': (BuildContext context) => HomePage(_products),
+        '/': (BuildContext context) => AuthPage(),
+        '/home':(BuildContext context) => HomePage(_products),
         '/admin': (BuildContext context) =>
             ProductAdminPage(_addProduct, _removeProduct),
       },
