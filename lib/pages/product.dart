@@ -4,34 +4,10 @@ import 'dart:async';
 class ProductPage extends StatelessWidget {
   final String title;
   final String imageUrl;
+  final double price;
+  final String description;
 
-  ProductPage(this.title, this.imageUrl);
-
-  _showAlert(BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Are you sure?'),
-            content: Text('This action is final.'),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('DISCARD'),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              FlatButton(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context, true);
-                },
-              ),
-            ],
-          );
-        });
-  }
+  ProductPage(this.title, this.imageUrl, this.price, this.description);
 
   @override
   Widget build(BuildContext context) {
@@ -50,17 +26,36 @@ class ProductPage extends StatelessWidget {
             Image.asset(imageUrl),
             Container(
               padding: EdgeInsets.all(10.0),
-              child: Text(title),
+              child: Text(
+                title,
+                style: TextStyle(
+                    fontFamily: 'Oswald',
+                    fontSize: 26.0,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'Seattle, WA',
+                  style: TextStyle(fontFamily: 'Oswald'),
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 5.0),
+                  child: Text('|'),
+                ),
+                Text(
+                  '\$ ${price.toString()}',
+                  style: TextStyle(fontFamily: 'Oswald'),
+                )
+              ],
             ),
             Container(
               padding: EdgeInsets.all(10.0),
-              child: RaisedButton(
-                color: Theme.of(context).accentColor,
-                child: Text('Delete'),
-                onPressed: () =>
-                  _showAlert(context),
-              ),
-            ),
+              margin: EdgeInsets.only(top: 3.0),
+              child: Text(description, textAlign: TextAlign.center,),
+            )
           ],
         ),
       ),
