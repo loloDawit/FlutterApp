@@ -13,9 +13,12 @@ class ProductCreatePage extends StatefulWidget {
 }
 
 class _ProductCreatePageState extends State<ProductCreatePage> {
-  String _titleValue = '';
-  String _description = '';
-  double _priceValue = 0.0;
+  final Map<String, dynamic> _formData = {
+    "title": null,
+    "description": null,
+    "price": null, 
+    'image': 'assets/food.jpg'
+  };
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -29,9 +32,7 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
         }
       },
       onSaved: (String value) {
-        setState(() {
-          _titleValue = value;
-        });
+        _formData['title'] = value;
       },
     );
   }
@@ -41,15 +42,13 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
       decoration: InputDecoration(labelText: 'Product Description'),
       maxLines: 4,
       autovalidate: true,
-       validator: (String value) {
+      validator: (String value) {
         if (value.isEmpty) {
           return 'Description is required';
         }
       },
       onSaved: (String value) {
-        setState(() {
-          _description = value;
-        });
+        _formData['description'] = value;
       },
     );
   }
@@ -59,32 +58,33 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
       decoration: InputDecoration(labelText: 'Product Price'),
       keyboardType: TextInputType.number,
       autovalidate: true,
-       validator: (String value) {
-        if (value.isEmpty || !RegExp(r'^(?:[1-9]\d*|0)?(?:\.\d)?$').hasMatch(value)) {
+      validator: (String value) {
+        if (value.isEmpty ||
+            !RegExp(r'^(?:[1-9]\d*|0)?(?:\.\d)?$').hasMatch(value)) {
           return 'Price is required and should be a number';
         }
       },
       onSaved: (String value) {
-        setState(() {
-          _priceValue = double.parse(value);
-        });
+        _formData['price'] = double.parse(value);
       },
     );
   }
 
   _showAlert() {
-    var alert = new CupertinoAlertDialog (
-        title: new Text("Alert"),
-        content: new Text("There was an error saving the data. Please make sure the fields all filled!"),
-        actions: <Widget>[
-          new CupertinoDialogAction(
-              child: const Text('Ok'),
-              isDestructiveAction: true,
-              onPressed: () { Navigator.pop(context, 'Ok'); }
-          ),
-        ],
-      );
-      showDialog(context: context, child: alert);
+    var alert = new CupertinoAlertDialog(
+      title: new Text("Alert"),
+      content: new Text(
+          "There was an error saving the data. Please make sure the fields all filled!"),
+      actions: <Widget>[
+        new CupertinoDialogAction(
+            child: const Text('Ok'),
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.pop(context, 'Ok');
+            }),
+      ],
+    );
+    showDialog(context: context, child: alert);
   }
 
   void _submitForm() {
@@ -92,13 +92,7 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
       return _showAlert();
     }
     _formKey.currentState.save();
-    final Map<String, dynamic> product = {
-      'title': _titleValue,
-      'description': _description,
-      'price': _priceValue,
-      'image': 'assets/food.jpg'
-    };
-    widget.addProduct(product);
+    widget.addProduct(_formData);
     Navigator.pushNamed(context, '/home');
   }
 
@@ -107,23 +101,28 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
     final double deviceWidth = MediaQuery.of(context).size.width;
     final double targerWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
     final double targerPadding = deviceWidth - targerWidth;
-    return Container(
-      margin: EdgeInsets.all(10.0),
-      child: Form(
-        key: _formKey,
-        child: ListView(
-          padding: EdgeInsets.symmetric(horizontal: targerPadding / 4),
-          children: <Widget>[
-            _buildTitleTextField(),
-            _buildDescriptionTextField(),
-            _buildPriceTextField(),
-            SizedBox(height: 10.0),
-            RaisedButton(
-              child: Text('Save'),
-              textColor: Colors.white,
-              onPressed: _submitForm,
-            ),
-          ],
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
+      child: Container(
+        margin: EdgeInsets.all(10.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: EdgeInsets.symmetric(horizontal: targerPadding / 4),
+            children: <Widget>[
+              _buildTitleTextField(),
+              _buildDescriptionTextField(),
+              _buildPriceTextField(),
+              SizedBox(height: 10.0),
+              RaisedButton(
+                child: Text('Save'),
+                textColor: Colors.white,
+                onPressed: _submitForm,
+              ),
+            ],
+          ),
         ),
       ),
     );
