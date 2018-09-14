@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+
 import './price_tag.dart';
+import '../UI/title_default.dart';
+import './address_tag.dart';
 
 class ProductCard extends StatelessWidget {
-  final Map < String, dynamic> product; 
-  final int productIndex; 
-  final int count = 0; 
+  final Map<String, dynamic> product;
+  final int productIndex;
+  final int count = 0;
 
-  ProductCard(this.product, this.productIndex); 
+  ProductCard(this.product, this.productIndex);
 
   @override
   Widget build(BuildContext context) {
@@ -19,26 +22,13 @@ class ProductCard extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Text(
-                  product['title'],
-                  style: TextStyle(
-                      fontSize: 26.0,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Oswald'),
-                ),
+                TitleDefult(product['title']),
                 SizedBox(width: 8.0),
                 PriceTag(product['price'].toString())
               ],
             ),
           ),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.5),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey, width: 1.0),
-              borderRadius: BorderRadius.circular(4.0),
-            ),
-            child: Text('Seattle, WA'),
-          ),
+          AddressTag('Seattle, WA'),
           ButtonBar(
             alignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -49,14 +39,13 @@ class ProductCard extends StatelessWidget {
                     context, '/product/' + productIndex.toString()),
               ),
               IconButton(
-                icon: Icon(Icons.favorite_border),
-                color: Colors.red,
-                onPressed: () {
-                  //count++;
-                  print(count);
-                  Text(count.toString());
-                }
-              ), 
+                  icon: Icon(Icons.favorite_border),
+                  color: Colors.red,
+                  onPressed: () {
+                    //count++;
+                    print(count);
+                    Text(count.toString());
+                  }),
               Text(count.toString())
             ],
           )
@@ -64,5 +53,4 @@ class ProductCard extends StatelessWidget {
       ),
     );
   }
-
 }
