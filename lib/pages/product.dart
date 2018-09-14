@@ -12,6 +12,26 @@ class ProductPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget _buildRow() {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Seattle, WA',
+            style: TextStyle(fontFamily: 'Oswald'),
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 5.0),
+            child: Text('|'),
+          ),
+          Text(
+            '\$ ${price.toString()}',
+            style: TextStyle(fontFamily: 'Oswald'),
+          )
+        ],
+      );
+    }
+
     return WillPopScope(
       onWillPop: () {
         Navigator.pop(context, false);
@@ -29,27 +49,14 @@ class ProductPage extends StatelessWidget {
               padding: EdgeInsets.all(10.0),
               child: TitleDefult(title),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  'Seattle, WA',
-                  style: TextStyle(fontFamily: 'Oswald'),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 5.0),
-                  child: Text('|'),
-                ),
-                Text(
-                  '\$ ${price.toString()}',
-                  style: TextStyle(fontFamily: 'Oswald'),
-                )
-              ],
-            ),
+            _buildRow(),
             Container(
               padding: EdgeInsets.all(10.0),
               margin: EdgeInsets.only(top: 3.0),
-              child: Text(description, textAlign: TextAlign.center,),
+              child: Text(
+                description,
+                textAlign: TextAlign.center,
+              ),
             )
           ],
         ),
