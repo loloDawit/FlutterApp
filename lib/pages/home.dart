@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import '../widgets/products/products.dart';
 
 class HomePage extends StatelessWidget {
-  final List<Map<String,dynamic>> products;
-  HomePage(this.products);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +29,7 @@ class HomePage extends StatelessWidget {
            IconButton( icon: Icon(Icons.favorite), onPressed: () {},)
         ],
       ),
-      body: Products(products),
+      body: Products(),
     );
   }
 }

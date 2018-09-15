@@ -4,10 +4,7 @@ import './product_create.dart';
 import './product_list.dart';
 
 class ProductAdminPage extends StatelessWidget {
-  final Function addProduct;
-  final Function removeProduct;
 
-  ProductAdminPage(this.addProduct, this.removeProduct);
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +21,7 @@ class ProductAdminPage extends StatelessWidget {
               leading: Icon(Icons.shop),
               title: Text('All Products'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/');
+                Navigator.pushReplacementNamed(context, '/home');
               },
             )
           ],
@@ -51,7 +48,7 @@ class ProductAdminPage extends StatelessWidget {
           ),
           body: TabBarView(
             children: <Widget>[
-              ProductCreatePage(addProduct),
+              ProductCreatePage(),
               ProductListPage()
             ],
           ),

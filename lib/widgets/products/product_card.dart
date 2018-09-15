@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 import './price_tag.dart';
 import '../UI/title_default.dart';
 import './address_tag.dart';
 
+import '../../models/product.dart';
+import '../../scoped_models/products.dart';
+
 class ProductCard extends StatelessWidget {
-  final Map<String, dynamic> product;
+  final Product product;
   final int productIndex;
   final int count = 0;
 
@@ -16,15 +20,15 @@ class ProductCard extends StatelessWidget {
     return Card(
       child: Column(
         children: <Widget>[
-          Image.asset(product['image']),
+          Image.asset(product.image),
           Container(
             margin: EdgeInsets.only(top: 10.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                TitleDefult(product['title']),
+                TitleDefult(product.title),
                 SizedBox(width: 8.0),
-                PriceTag(product['price'].toString())
+                PriceTag(product.price.toString())
               ],
             ),
           ),
@@ -38,14 +42,21 @@ class ProductCard extends StatelessWidget {
                 onPressed: () => Navigator.pushNamed<bool>(
                     context, '/product/' + productIndex.toString()),
               ),
-              IconButton(
-                  icon: Icon(Icons.favorite_border),
-                  color: Colors.red,
-                  onPressed: () {
-                    //count++;
-                    print(count);
-                    Text(count.toString());
-                  }),
+              ScopedModelDescendant<ProductsModel>(
+                builder:
+                    (BuildContext context, Widget child, ProductsModel model) {
+                  return IconButton(
+                    icon: Icon(model.products[productIndex].isFav
+                        ? Icons.favorite
+                        : Icons.favorite_border),
+                    color: Colors.red,
+                    onPressed: () {
+                      model.selectProduct(productIndex);
+                      model.favProduct();
+                    },
+                  );
+                },
+              ),
               Text(count.toString())
             ],
           )
