@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../widgets/products/products.dart';
-import '../scoped_models/products.dart';
+import '../scoped_models/main.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -28,8 +28,8 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Welcome to Fluter'),
         actions: <Widget>[
-          ScopedModelDescendant<ProductsModel>(
-            builder: (BuildContext context, Widget child, ProductsModel model) {
+          ScopedModelDescendant<MainModel>(
+            builder: (BuildContext context, Widget child, MainModel model) {
               return IconButton(
                 icon: Icon(model.displayFavOnly ? Icons.favorite : Icons.favorite_border),
                 onPressed: () {
