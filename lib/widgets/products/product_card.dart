@@ -33,6 +33,7 @@ class ProductCard extends StatelessWidget {
             ),
           ),
           AddressTag('Seattle, WA'),
+          Text( product.userEmail),
           ButtonBar(
             alignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -46,7 +47,7 @@ class ProductCard extends StatelessWidget {
                 builder:
                     (BuildContext context, Widget child, MainModel model) {
                   return IconButton(
-                    icon: Icon(model.products[productIndex].isFav
+                    icon: Icon(model.allProducts[productIndex].isFav
                         ? Icons.favorite
                         : Icons.favorite_border),
                     color: Colors.red,

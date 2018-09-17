@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../pages/product_create.dart';
 
-
 import '../scoped_models/main.dart';
 
 class ProductListPage extends StatelessWidget {
@@ -30,7 +29,7 @@ class ProductListPage extends StatelessWidget {
               background: Container(
                 color: Colors.red,
               ),
-              key: Key(model.products[index].title),
+              key: Key(model.allProducts[index].title),
               onDismissed: (DismissDirection direction) {
                 model.selectProduct(index);
                 if (direction == DismissDirection.endToStart) {
@@ -54,11 +53,11 @@ class ProductListPage extends StatelessWidget {
                   ListTile(
                       leading: CircleAvatar(
                         backgroundImage:
-                            AssetImage(model.products[index].image),
+                            AssetImage(model.allProducts[index].image),
                       ),
-                      title: Text(model.products[index].title),
+                      title: Text(model.allProducts[index].title),
                       subtitle:
-                          Text('\$${model.products[index].price.toString()}'),
+                          Text('\$${model.allProducts[index].price.toString()}'),
                       trailing: _buildEditButton(context, index, model)),
                   Divider(
                     color: Colors.redAccent,
@@ -67,7 +66,7 @@ class ProductListPage extends StatelessWidget {
               ),
             );
           },
-          itemCount: model.products.length,
+          itemCount: model.allProducts.length,
         );
       },
     );

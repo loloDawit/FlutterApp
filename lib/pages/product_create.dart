@@ -86,7 +86,7 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
     showDialog(context: context, child: alert);
   }
 
-  void _submitForm(Function addProduct, Function updateProduct,
+  void _submitForm(Function addProduct, Function updateProduct, Function setSelectedProduct,
       [int selectedProductIndex]) {
     if (!_formKey.currentState.validate()) {
       return _showAlert();
@@ -94,22 +94,19 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
     _formKey.currentState.save();
     if (selectedProductIndex == null) {
       // add product mode
-      addProduct(Product(
-          title: _formData['title'],
-          description: _formData['description'],
-          price: _formData['price'],
-          image: _formData['image']));
+      addProduct(
+        _formData['title'],
+        _formData['description'],
+        _formData['image'],
+        _formData['price'],
+      );
     } else {
-      // updage product
-      updateProduct(
-          Product(
-              title: _formData['title'],
-              description: _formData['description'],
-              price: _formData['price'],
-              image: _formData['image']));
+      // update product
+      updateProduct(_formData['title'], _formData['description'],
+          _formData['image'], _formData['price']);
     }
 
-    Navigator.pushNamed(context, '/home');
+    Navigator.pushReplacementNamed(context, '/home').then((_)=> setSelectedProduct(null));
   }
 
   Widget _buildSubmitButton() {
@@ -118,7 +115,7 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
         return RaisedButton(
           child: Text('Save'),
           textColor: Colors.white,
-          onPressed: () => _submitForm(model.addProduct, model.updateProduct,
+          onPressed: () => _submitForm(model.addProduct, model.updateProduct,model.selectProduct,
               model.selectedProductIndex),
         );
       },
