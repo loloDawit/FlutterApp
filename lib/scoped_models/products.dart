@@ -62,6 +62,7 @@ class ProductsModel extends Model {
     _products[_selectedProductIndex] = updatedProduct;
     _selectedProductIndex = null;
     notifyListeners();
+    _selectedProductIndex=null;
   }
   void toggleDisplayMode(){
     _showFav = !_showFav;
