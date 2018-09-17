@@ -4,11 +4,16 @@ import '../models/product.dart';
 class ProductsModel extends Model {
   List<Product> _products = [];
   int _selectedProductIndex;
-
+  bool _showFav = false; 
   List<Product> get products {
     return List.from(_products);
   }
-
+  List<Product> get disPlayedProducts {
+    if(_showFav){
+      return _products.where((Product product)=> product.isFav ).toList();
+    }
+    return List.from(_products);
+  }
   int get selectedProductIndex {
     return _selectedProductIndex;
   }
@@ -19,7 +24,9 @@ class ProductsModel extends Model {
     }
     return _products[_selectedProductIndex];
   }
-
+  bool get displayFavOnly {
+    return _showFav;
+  }
   void addProduct(Product product) {
     _products.add(product);
     _selectedProductIndex = null;
@@ -40,6 +47,7 @@ class ProductsModel extends Model {
 
   void selectProduct(int index) {
     _selectedProductIndex = index;
+    notifyListeners();
   }
 
   void favProduct() {
@@ -53,6 +61,10 @@ class ProductsModel extends Model {
         isFav: newFavStatus);
     _products[_selectedProductIndex] = updatedProduct;
     _selectedProductIndex = null;
+    notifyListeners();
+  }
+  void toggleDisplayMode(){
+    _showFav = !_showFav;
     notifyListeners();
   }
 }
