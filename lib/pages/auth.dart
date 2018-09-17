@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
+import '../scoped_models/main.dart';
 
 class AuthPage extends StatefulWidget {
   @override
@@ -76,13 +78,14 @@ class _AppPage extends State<AuthPage> {
     );
   }
 
-  void _submitForm() {
+  void _submitForm(Function login) {
     if (!_formKey.currentState.validate() || !_formData['acceptTerms']) {
       return _showAlert();
     }
     _formKey.currentState.save();
     print(_formData['email']);
     print(_formData['password']);
+    login(_formData['email'], _formData['password']);
     Navigator.pushReplacementNamed(context, '/home');
   }
 
@@ -120,11 +123,17 @@ class _AppPage extends State<AuthPage> {
                     _passwordTextField(),
                     SizedBox(height: 10.0),
                     _buildAcceptTerms(),
-                    RaisedButton(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text('LogIn'),
-                        textColor: Colors.white,
-                        onPressed: _submitForm),
+                    ScopedModelDescendant<MainModel>(
+                      builder: (BuildContext context, Widget child,
+                          MainModel model) {
+                        return RaisedButton(
+                          padding: EdgeInsets.symmetric(vertical: 16.0),
+                          child: Text('LogIn'),
+                          textColor: Colors.white,
+                          onPressed: () => _submitForm(model.login),
+                        );
+                      },
+                    ),
                     FlatButton(
                       child: Text(
                         'Forgot password?',
