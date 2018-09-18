@@ -7,6 +7,7 @@ import './pages/home.dart';
 import './pages/auth.dart';
 
 import './scoped_models/main.dart';
+import './models/product.dart';
 
 void main() => runApp(MyApp());
 
@@ -20,8 +21,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
+    final MainModel model = MainModel();
     return ScopedModel<MainModel>(
-      model: MainModel(),
+      model: model,
       child: MaterialApp(
         theme: ThemeData(
             brightness: Brightness.light,
@@ -31,8 +33,8 @@ class _MyAppState extends State<MyApp> {
         title: 'Welcome to Flutter',
         routes: {
           '/': (BuildContext context) => AuthPage(),
-          '/home': (BuildContext context) => HomePage(),
-          '/admin': (BuildContext context) => ProductAdminPage(),
+          '/home': (BuildContext context) => HomePage(model),
+          '/admin': (BuildContext context) => ProductAdminPage(model),
         },
         onGenerateRoute: (RouteSettings settings) {
           final List<String> pathElements = settings.name.split('/');
@@ -40,18 +42,20 @@ class _MyAppState extends State<MyApp> {
             return null;
           }
           if (pathElements[1] == 'product') {
-            final int index = int.parse(pathElements[2]);
-
+            final String productId = pathElements[2];
+            final Product product = model.allProducts.firstWhere((Product  product){
+              return product.id == productId;
+            });
             return MaterialPageRoute<bool>(
               builder: (BuildContext context) =>
-                  ProductPage(index),
+                  ProductPage(product),
             );
           }
           return null;
         },
         onUnknownRoute: (RouteSettings settings) {
           return MaterialPageRoute(
-              builder: (BuildContext context) => (HomePage()));
+              builder: (BuildContext context) => (HomePage(model)));
         },
       ),
     );

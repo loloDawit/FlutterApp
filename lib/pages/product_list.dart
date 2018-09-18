@@ -4,12 +4,26 @@ import '../pages/product_create.dart';
 
 import '../scoped_models/main.dart';
 
-class ProductListPage extends StatelessWidget {
+class ProductListPage extends StatefulWidget {
+  final MainModel model;
+  ProductListPage(this.model);
+  @override
+  State<StatefulWidget> createState() {
+    return _ProductListPage();
+  }
+}
+
+class _ProductListPage extends State<ProductListPage> {
+  @override
+   initState(){
+     widget.model.fetchProducts();
+     super.initState();
+   }
   Widget _buildEditButton(BuildContext context, int index, MainModel model) {
     return IconButton(
       icon: Icon(Icons.edit),
       onPressed: () {
-        model.selectProduct(index);
+        model.selectProduct(model.allProducts[index].id);
         Navigator.of(context).push(
           MaterialPageRoute(builder: (BuildContext context) {
             return ProductCreatePage();
@@ -23,7 +37,9 @@ class ProductListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScopedModelDescendant<MainModel>(
       builder: (BuildContext context, Widget child, MainModel model) {
-        return ListView.builder(
+        Widget content = Center( child: Text('You Have No Product!'),);
+        if(model.disPlayedProducts.length > 0 && !model.isLoading){
+          content =  ListView.builder(
           itemBuilder: (BuildContext context, int index) {
             return Dismissible(
               background: Container(
@@ -31,7 +47,7 @@ class ProductListPage extends StatelessWidget {
               ),
               key: Key(model.allProducts[index].title),
               onDismissed: (DismissDirection direction) {
-                model.selectProduct(index);
+                model.selectProduct(model.allProducts[index].id);
                 if (direction == DismissDirection.endToStart) {
                   model.removeProduct();
                 } else if (direction == DismissDirection.startToEnd) {
@@ -53,11 +69,11 @@ class ProductListPage extends StatelessWidget {
                   ListTile(
                       leading: CircleAvatar(
                         backgroundImage:
-                            AssetImage(model.allProducts[index].image),
+                            NetworkImage(model.allProducts[index].image),
                       ),
                       title: Text(model.allProducts[index].title),
-                      subtitle:
-                          Text('\$${model.allProducts[index].price.toString()}'),
+                      subtitle: Text(
+                          '\$${model.allProducts[index].price.toString()}'),
                       trailing: _buildEditButton(context, index, model)),
                   Divider(
                     color: Colors.redAccent,
@@ -67,7 +83,11 @@ class ProductListPage extends StatelessWidget {
             );
           },
           itemCount: model.allProducts.length,
-        );
+        );}
+        else if(model.isLoading){
+          content = Center( child: CircularProgressIndicator(),);
+        }
+        return content;
       },
     );
   }

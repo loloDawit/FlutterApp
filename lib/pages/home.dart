@@ -4,8 +4,22 @@ import 'package:scoped_model/scoped_model.dart';
 import '../widgets/products/products.dart';
 import '../scoped_models/main.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  final MainModel model;
+  HomePage(this.model);
   @override
+  State<StatefulWidget> createState() {
+    return _HomePageState();
+  }
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  initState() {
+    widget.model.fetchProducts();
+    super.initState();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
@@ -31,7 +45,9 @@ class HomePage extends StatelessWidget {
           ScopedModelDescendant<MainModel>(
             builder: (BuildContext context, Widget child, MainModel model) {
               return IconButton(
-                icon: Icon(model.displayFavOnly ? Icons.favorite : Icons.favorite_border),
+                icon: Icon(model.displayFavOnly
+                    ? Icons.favorite
+                    : Icons.favorite_border),
                 onPressed: () {
                   model.toggleDisplayMode();
                 },
@@ -40,7 +56,25 @@ class HomePage extends StatelessWidget {
           )
         ],
       ),
-      body: Products(),
+      body: _buildProductList(),
+    );
+  }
+
+  Widget _buildProductList() {
+    return ScopedModelDescendant(
+      builder: (BuildContext context, Widget child, MainModel model) {
+        Widget content = Center(
+          child: Text('No Products Found!'),
+        );
+        if (model.disPlayedProducts.length > 0 && !model.isLoading) {
+          content = Products();
+        } else if (model.isLoading) {
+          content = Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        return RefreshIndicator(child: content, onRefresh: model.fetchProducts);
+      },
     );
   }
 }

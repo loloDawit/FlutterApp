@@ -7,7 +7,7 @@ class Product {
   final String image;
   final bool isFav;
   final String userEmail;
-  final String userID;
+  final String userId;
   final String id;
 
   Product(
@@ -17,6 +17,6 @@ class Product {
       @required this.price,
       @required this.image,
       @required this.userEmail,
-      @required this.userID,
+      @required this.userId,
       this.isFav = false});
 }

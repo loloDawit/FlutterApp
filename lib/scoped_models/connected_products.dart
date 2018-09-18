@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:scoped_model/scoped_model.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -8,18 +10,23 @@ import '../models/user.dart';
 class ConnectedProductsModel extends Model {
   List<Product> _products = [];
   User _authenticatedUser;
-  int _selected_ProductIndex;
+  String _selected_ProductId;
+  bool _isLoading = false;
 
-  void addProduct(
+  Future<Null> addProduct(
       String title, String description, String image, double price) {
+    _isLoading = true;
+    notifyListeners();
     final Map<String, dynamic> productData = {
       'title': title,
       'description': description,
       'image':
-          'https://www.google.com/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwjQ9Zz3gsPdAhWSLnwKHUAwDYUQjRx6BAgBEAU&url=https%3A%2F%2Fmigrationology.com%2Fethiopian-kitfo-yohannes-restaurant%2F&psig=AOvVaw19T4PhLKqoGGcgzdZDGN5C&ust=1537307471643454',
-      'price': price
+          'https://cdn.pixabay.com/photo/2018/08/30/10/25/plums-3641844_960_720.jpg',
+      'price': price,
+      'userEmail': _authenticatedUser.email,
+      'userId': _authenticatedUser.id
     };
-    http
+    return http
         .post('https://flutterapp-12c55.firebaseio.com/products.json',
             body: json.encode(productData))
         .then((http.Response response) {
@@ -32,8 +39,9 @@ class ConnectedProductsModel extends Model {
           image: image,
           price: price,
           userEmail: _authenticatedUser.email,
-          userID: _authenticatedUser.id);
+          userId: _authenticatedUser.id);
       _products.add(newProduct);
+      _isLoading = false;
       notifyListeners();
     });
   }
@@ -53,14 +61,22 @@ class ProductsModel extends ConnectedProductsModel {
   }
 
   int get selectedProductIndex {
-    return _selected_ProductIndex;
+    return _products.indexWhere((Product product) {
+      return product.id == _selected_ProductId;
+    });
+  }
+
+  String get selectedProductId {
+    return _selected_ProductId;
   }
 
   Product get selectedProduct {
-    if (selectedProductIndex == null) {
+    if (selectedProductId == null) {
       return null;
     }
-    return _products[selectedProductIndex];
+    return _products.firstWhere((Product product) {
+      return product.id == _selected_ProductId;
+    });
   }
 
   bool get displayFavOnly {
@@ -68,38 +84,101 @@ class ProductsModel extends ConnectedProductsModel {
   }
 
   void removeProduct() {
+    _isLoading = true;
+    final deletedProductId = selectedProduct.id;
     _products.removeAt(selectedProductIndex);
+    _selected_ProductId = null;
     notifyListeners();
+    http
+        .delete(
+            'https://flutterapp-12c55.firebaseio.com/products/${deletedProductId}.json')
+        .then((http.Response response) {
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 
-  void updateProduct(
+  Future<Null> updateProduct(
       String title, String description, String image, double price) {
-    final Product updatedProduct = Product(
-        title: title,
-        description: description,
-        image: image,
-        price: price,
-        userEmail: selectedProduct.userEmail,
-        userID: selectedProduct.userID);
-    _products[selectedProductIndex] = updatedProduct;
+    _isLoading = true;
+    notifyListeners();
+    Map<String, dynamic> updateData = {
+      'title': title,
+      'description': description,
+      'image':
+          'https://cdn.pixabay.com/photo/2017/10/27/22/43/coffee-2895730_960_720.jpg',
+      'price': price,
+      'userEmail': selectedProduct.userEmail,
+      'userId': selectedProduct.userId
+    };
+    return http
+        .put(
+            'https://flutterapp-12c55.firebaseio.com/products/${selectedProduct.id}.json',
+            body: json.encode(updateData))
+        .then((http.Response response) {
+      _isLoading = false;
+      notifyListeners();
+      final Product updatedProduct = Product(
+          id: selectedProduct.id,
+          title: title,
+          description: description,
+          image: image,
+          price: price,
+          userEmail: selectedProduct.userEmail,
+          userId: selectedProduct.userId);
+      _products[selectedProductIndex] = updatedProduct;
+      notifyListeners();
+    });
+  }
+
+  void selectProduct(String productId) {
+    _selected_ProductId = productId;
     notifyListeners();
   }
 
-  void selectProduct(int index) {
-    _selected_ProductIndex = index;
+  Future<Null> fetchProducts() {
+    _isLoading = true;
     notifyListeners();
+    return http
+        .get('https://flutterapp-12c55.firebaseio.com/products.json')
+        .then((http.Response response) {
+      print(json.decode(response.body));
+      final List<Product> fetchedProductList = [];
+      final Map<String, dynamic> productListData = json.decode(response.body);
+      if (productListData == null) {
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+      productListData.forEach((String productId, dynamic productData) {
+        final Product product = Product(
+            id: productId,
+            title: productData['title'],
+            description: productData['description'],
+            image: productData['image'],
+            price: productData['price'],
+            userEmail: productData['userEmail'],
+            userId: productListData['userId']);
+        fetchedProductList.add(product);
+      });
+      _products = fetchedProductList;
+      _isLoading = false;
+      notifyListeners();
+      _selected_ProductId =null;
+    });
   }
 
   void favProduct() {
     final bool isCurFav = selectedProduct.isFav;
     final newFavStatus = !isCurFav;
     final Product updatedProduct = Product(
+        id: selectedProduct.id,
         title: selectedProduct.title,
         description: selectedProduct.description,
         price: selectedProduct.price,
         image: selectedProduct.image,
         userEmail: selectedProduct.userEmail,
-        userID: selectedProduct.userID,
+        userId: selectedProduct.userId,
         isFav: newFavStatus);
     _products[selectedProductIndex] = updatedProduct;
     notifyListeners();
@@ -114,5 +193,11 @@ class ProductsModel extends ConnectedProductsModel {
 class UserModel extends ConnectedProductsModel {
   void login(String email, String password) {
     _authenticatedUser = User(id: 'dadada', email: email, password: password);
+  }
+}
+
+class UtilityModel extends ConnectedProductsModel {
+  bool get isLoading {
+    return _isLoading;
   }
 }
