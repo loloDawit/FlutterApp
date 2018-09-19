@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../pages/product_create.dart';
@@ -49,7 +50,13 @@ class _ProductListPage extends State<ProductListPage> {
               onDismissed: (DismissDirection direction) {
                 model.selectProduct(model.allProducts[index].id);
                 if (direction == DismissDirection.endToStart) {
-                  model.removeProduct();
+                  model.removeProduct().then((bool success){
+                    if(success){
+                      _showAlert(Text("Product Deleted"), Text('You have successfully deleted the product'));
+                    }else{
+                      _showAlert(Text('Alert'),Text('There was an error saving the data. Please make sure the fields all filled!'));
+                    }
+                  });
                 } else if (direction == DismissDirection.startToEnd) {
                   // Navigator.of(context).push(
                   //   MaterialPageRoute(builder: (BuildContext context) {
@@ -90,5 +97,21 @@ class _ProductListPage extends State<ProductListPage> {
         return content;
       },
     );
+  }
+  _showAlert(Text title, Text content) {
+    var alert = new CupertinoAlertDialog(
+      title: title, //alert
+      content: content,//new Text(
+      //     "There was an error saving the data. Please make sure the fields all filled!"),
+      actions: <Widget>[
+        new CupertinoDialogAction(
+            child: const Text('Ok'),
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.pop(context, 'Ok');
+            }),
+      ],
+    );
+    showDialog(context: context, child: alert);
   }
 }

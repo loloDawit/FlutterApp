@@ -69,11 +69,10 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
     );
   }
 
-  _showAlert() {
+  _showAlert(Text title, Text content) {
     var alert = new CupertinoAlertDialog(
-      title: new Text("Alert"),
-      content: new Text(
-          "There was an error saving the data. Please make sure the fields all filled!"),
+      title: title,
+      content: content,
       actions: <Widget>[
         new CupertinoDialogAction(
             child: const Text('Ok'),
@@ -90,7 +89,7 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
       Function addProduct, Function updateProduct, Function setSelectedProduct,
       [int selectedProductIndex]) {
     if (!_formKey.currentState.validate()) {
-      return _showAlert();
+      return _showAlert(Text('Error Submitting Form'), Text('Check all fields and try again.'));
     }
     _formKey.currentState.save();
     if (selectedProductIndex == -1) {
@@ -100,14 +99,30 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
         _formData['description'],
         _formData['image'],
         _formData['price'],
-      ).then((_) => Navigator.pushReplacementNamed(context, '/home')
-          .then((_) => setSelectedProduct(null)));
+      ).then((bool success) {
+        if (success) {
+          Navigator.pushReplacementNamed(context, '/home')
+              .then((_) => setSelectedProduct(null));
+        } else {
+          _showAlert(Text('Error Adding'), Text('There was an error adding the product to the server.'));
+        }
+      });
     } else {
       // update product
-      updateProduct(_formData['title'], _formData['description'],
-              _formData['image'], _formData['price'])
-          .then((_) => Navigator.pushReplacementNamed(context, '/home')
-              .then((_) => setSelectedProduct(null)));
+      updateProduct (
+        _formData['title'], 
+        _formData['description'],
+        _formData['image'], 
+        _formData['price']
+        ).then((bool success) {
+        if (success) {
+          print('testing');
+          Navigator.pushReplacementNamed(context, '/home')
+              .then((_) => setSelectedProduct(null));
+        } else {
+          _showAlert(Text('Error Updating'), Text('There was an error updating the product to the server.'));
+        }
+      });
     }
   }
 
