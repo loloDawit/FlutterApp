@@ -92,7 +92,7 @@ class _ProductListPage extends State<ProductListPage> {
           itemCount: model.allProducts.length,
         );}
         else if(model.isLoading){
-          content = Center( child: CircularProgressIndicator(),);
+          content = Center( child: CupertinoActivityIndicator(),);
         }
         return content;
       },

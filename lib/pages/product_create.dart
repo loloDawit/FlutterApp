@@ -114,15 +114,9 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
         _formData['description'],
         _formData['image'], 
         _formData['price']
-        ).then((bool success) {
-        if (success) {
-          print('testing');
+        ).then((_) =>
           Navigator.pushReplacementNamed(context, '/home')
-              .then((_) => setSelectedProduct(null));
-        } else {
-          _showAlert(Text('Error Updating'), Text('There was an error updating the product to the server.'));
-        }
-      });
+              .then((_) => setSelectedProduct(null)));
     }
   }
 
@@ -130,7 +124,7 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
     return ScopedModelDescendant<MainModel>(
       builder: (BuildContext context, Widget child, MainModel model) {
         return model.isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? Center(child: CupertinoActivityIndicator())
             : RaisedButton(
                 child: Text('Save'),
                 textColor: Colors.white,

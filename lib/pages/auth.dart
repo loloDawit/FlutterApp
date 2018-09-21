@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../scoped_models/main.dart';
 
+import '../models/auth.dart';
+
 class AuthPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -12,6 +14,8 @@ class AuthPage extends StatefulWidget {
 
 class _AppPage extends State<AuthPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _passwordTextController = TextEditingController();
+  AuthMode _authMode = AuthMode.Login;
   final Map<String, dynamic> _formData = {
     'email': null,
     'password': null,
@@ -22,6 +26,7 @@ class _AppPage extends State<AuthPage> {
     return TextFormField(
       decoration: InputDecoration(labelText: 'Password'),
       obscureText: true,
+      controller: _passwordTextController,
       validator: (String value) {
         if (value.isEmpty) {
           return 'Password is required!';
@@ -37,6 +42,7 @@ class _AppPage extends State<AuthPage> {
     return TextFormField(
       decoration: InputDecoration(labelText: 'Email'),
       keyboardType: TextInputType.emailAddress,
+      //controller: _emailTextController,
       validator: (String value) {
         if (value.isEmpty ||
             !RegExp(r"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$")
@@ -50,10 +56,23 @@ class _AppPage extends State<AuthPage> {
     );
   }
 
-  _showAlert() {
+  Widget _confirmPasswordTextField() {
+    return TextFormField(
+      decoration: InputDecoration(labelText: 'Confirm Password'),
+      obscureText: true,
+      validator: (String value) {
+        if (_passwordTextController.text != value) {
+          print(value + 'teeeest ' + _passwordTextController.text);
+          return 'Password does not match';
+        }
+      },
+    );
+  }
+
+  _showAlert(Text title, Text content) {
     var alert = new CupertinoAlertDialog(
-      title: new Text("Error Loging In"),
-      content: new Text("Please make sure the fields all filled!"),
+      title: title, //new Text("Error Loging In"),
+      content: content, //new Text("Please make sure the fields all filled!"),
       actions: <Widget>[
         new CupertinoDialogAction(
             child: const Text('Ok'),
@@ -78,15 +97,23 @@ class _AppPage extends State<AuthPage> {
     );
   }
 
-  void _submitForm(Function login) {
+  void _submitForm(Function authenticate) async {
     if (!_formKey.currentState.validate() || !_formData['acceptTerms']) {
-      return _showAlert();
+      return _showAlert(Text("Error Loging In"),
+          Text("Please make sure the fields all filled!"));
     }
     _formKey.currentState.save();
-    print(_formData['email']);
-    print(_formData['password']);
-    login(_formData['email'], _formData['password']);
-    Navigator.pushReplacementNamed(context, '/home');
+    Map<String, dynamic> successInfo;
+    successInfo = await authenticate(
+        _formData['email'], _formData['password'], _authMode);
+
+    if (successInfo['Success']) {
+      _showAlert(
+          Text('User Created'), Text('User has been successfully created'));
+      // Navigator.pushReplacementNamed(context, '/');
+    } else {
+      _showAlert(Text('Error Has Occurred'), Text('${successInfo['Message']}'));
+    }
   }
 
   @override
@@ -122,24 +149,38 @@ class _AppPage extends State<AuthPage> {
                     SizedBox(height: 10.0),
                     _passwordTextField(),
                     SizedBox(height: 10.0),
+                    _authMode == AuthMode.Signup
+                        ? _confirmPasswordTextField()
+                        : Container(),
+                    SizedBox(height: 10.0),
                     _buildAcceptTerms(),
                     ScopedModelDescendant<MainModel>(
                       builder: (BuildContext context, Widget child,
                           MainModel model) {
-                        return RaisedButton(
-                          padding: EdgeInsets.symmetric(vertical: 16.0),
-                          child: Text('LogIn'),
-                          textColor: Colors.white,
-                          onPressed: () => _submitForm(model.login),
-                        );
+                        return model.isLoading
+                            ? CupertinoActivityIndicator()
+                            : CupertinoButton(
+                                padding: EdgeInsets.symmetric(vertical: 16.0),
+                                child: Text(
+                                    '${_authMode == AuthMode.Login ? 'Login' : 'Signup'}'),
+                                //textColor: Colors.white,
+                                onPressed: () =>
+                                    _submitForm(model.authenticate),
+                              );
                       },
                     ),
                     FlatButton(
                       child: Text(
-                        'Forgot password?',
+                        'Switch to ${_authMode == AuthMode.Login ? 'Signup' : 'Login'}',
                         style: TextStyle(color: Colors.black54),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          _authMode = _authMode == AuthMode.Login
+                              ? AuthMode.Signup
+                              : AuthMode.Login;
+                        });
+                      },
                     )
                   ],
                 ),
